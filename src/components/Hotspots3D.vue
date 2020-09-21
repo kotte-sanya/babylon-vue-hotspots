@@ -14,9 +14,7 @@ import 'babylonjs-materials';
 export default {
   name: 'Hotspots3D',
   props: {
-    fileLocation: String,
-    fileName: String,
-    coordHotspot: Object,
+    json: Object,
   },
   data(){
     return {
@@ -66,9 +64,8 @@ export default {
       let initialDistance = 5;
       let rotationalDistanceOffset = 5;
       let rotationalHeightOffset = 1;
-      let horizontalRotationalLimit = 60; 
-      let verticalRotationalLimit = 5;
-      let debug = true;
+      let horizontalRotationalLimit = 180; 
+      let verticalRotationalLimit = 180;
 
 
       /****CAMERA SYSTEM SETUP****/
@@ -86,76 +83,73 @@ export default {
       camera.upperRadiusLimit = initialDistance+10;
       camera.useBouncingBehavior = true;
 
-        /****SKYBOX SETUP****/
-      let skybox = BABYLON.MeshBuilder.CreateBox("skyBox", {size:1000.0}, scene);
-      let skyboxMaterial = new BABYLON.StandardMaterial("skyBox", scene);
-      skyboxMaterial.backFaceCulling = false;
-      skyboxMaterial.reflectionTexture = new BABYLON.CubeTexture("textures/skybox", scene);
-      skyboxMaterial.reflectionTexture.coordinatesMode = BABYLON.Texture.SKYBOX_MODE;
-      skyboxMaterial.diffuseColor = BABYLON.Color3.Black();
-      skyboxMaterial.specularColor = BABYLON.Color3.Black();
-      skybox.material = skyboxMaterial;
+      var skydome = BABYLON.Mesh.CreateSphere('dome', 64, 620, scene);
+      skydome.scaling = new BABYLON.Vector3(1.5, .5, 1.5);
+      skydome.position.y = -30;
+      var env_mat = new BABYLON.StandardMaterial("domemat", scene);
+      var envtext = new BABYLON.Texture(this.json.background, scene);
+      env_mat.diffuseTexture = envtext;
+      env_mat.diffuseTexture.vScale = -1;
+      env_mat.emissiveTexture = envtext;
+      env_mat.emissiveColor = new BABYLON.Color3(1,1,1);
+      env_mat.backFaceCulling = false;
+      skydome.material = env_mat;
 
-      /****HITBOX SETUP - TEST CUBE - 1****/
-      let hitboxTest = BABYLON.MeshBuilder.CreateBox("hb1", {height: 1, width: 1, depth: 0.25}, scene);
-      hitboxTest.position = new BABYLON.Vector3(0, 1.75, 1.5);
-      let hitboxTestMat = new BABYLON.StandardMaterial("testMaterial", scene);
-      hitboxTestMat.emissiveColor = BABYLON.Color3.Red();
-      hitboxTest.material = hitboxTestMat;
-      if(!debug){
-          hitboxTestMat.alpha = 0;
-      }
-      hitboxTest.setEnabled(false);
+      let hotspotsArray = [];
 
-      /****SETUP FOR ANIMATED PINS****/
-      var pinPlane1 = BABYLON.MeshBuilder.CreatePlane("pinPlane1", {width:0.5, height:0.5}, scene);
-      pinPlane1.position = new BABYLON.Vector3(this.coordHotspot.x, this.coordHotspot.y, this.coordHotspot.z);
-      var pinPlane1Mat = new BABYLON.StandardMaterial("pinPlane1Mat", scene);
-      pinPlane1Mat.emissiveColor = BABYLON.Color3.White();
-      pinPlane1Mat.diffuseTexture = new BABYLON.Texture(this.coordHotspot.url, scene);
-      pinPlane1.material = pinPlane1Mat;
-      pinPlane1.billboardMode = BABYLON.Mesh.BILLBOARDMODE_ALL;
-      pinPlane1Mat.diffuseTexture.hasAlpha = true; 
-      pinPlane1.setEnabled(false);
+      this.json.hotspots.forEach((item) => {
 
-      /****ADD ANIMATION TO PIN****/
-      var animationPin = new BABYLON.Animation("pinAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-      var pinKeys = [];
-      pinKeys.push({ frame: 0, value: 2.819});
-      pinKeys.push({ frame: 30, value: 3});
-      pinKeys.push({ frame: 60, value: 2.819});
-      animationPin.setKeys(pinKeys);
-      pinPlane1.animations.push(animationPin);
-      scene.beginAnimation(pinPlane1, 0, 60, true);
+        /****SETUP FOR ANIMATED PINS****/
+        let hotspot = BABYLON.MeshBuilder.CreateBox("hotspot", {width:item.width, height:item.height, depth: 0.00001}, scene);
+        hotspot.position = new BABYLON.Vector3(item.x, item.y, item.z);
+        let hotspotMat = new BABYLON.StandardMaterial("hotspotMat", scene);
+        hotspotMat.emissiveColor = BABYLON.Color3.White();
+        hotspotMat.diffuseTexture = new BABYLON.Texture(item.image, scene);
+        hotspot.material = hotspotMat;
+        hotspotMat.diffuseTexture.hasAlpha = true; 
+        hotspot.setEnabled(false);
 
-      /****ADD ANIMATION TO HOVERPLANE****/
-      var animationHover = new BABYLON.Animation("hoverAnimation", "material.alpha", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
-      var hoverKeys = [];// Animation keys
-      hoverKeys.push({ frame: 0, value: 0});
-      hoverKeys.push({ frame: 15, value: 0.2});
-      animationHover.setKeys(hoverKeys);
+        /****ADD ANIMATION TO PIN****/
+        let animationPin = new BABYLON.Animation("pinAnimation", "position.y", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        let pinKeys = [];
+        pinKeys.push({ frame: 0, value: 2.819});
+        pinKeys.push({ frame: 30, value: 3});
+        pinKeys.push({ frame: 60, value: 2.819});
+        animationPin.setKeys(pinKeys);
+        hotspot.animations.push(animationPin);
+        scene.beginAnimation(hotspot, 0, 60, true);
 
-      /****TRIGGER HOVER ANIMATION ON HOVER AND OUT ON NON-HOVER****/
-      let actionManager = new BABYLON.ActionManager(scene);
-      pinPlane1.actionManager = actionManager;
-      actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev){
-          scene.beginAnimation(pinPlane1, 0, 15, false);
-          console.log("Hover On");
-      }));
-      //if hover is over remove highlight of the mesh
-      actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev){
-          scene.beginAnimation(pinPlane1, 15, 0, false);
-          console.log("Hover Off");
-      }));
-      
-      actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, (ev)=>{
-          this.$emit('showModal', 'hotspots clicked !');
-      }));
+        /****ADD ANIMATION TO HOVERPLANE****/
+        let animationHover = new BABYLON.Animation("hoverAnimation", "material.alpha", 30, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
+        let hoverKeys = [];// Animation keys
+        hoverKeys.push({ frame: 0, value: 0});
+        hoverKeys.push({ frame: 15, value: 0.2});
+        animationHover.setKeys(hoverKeys);
+
+        /****TRIGGER HOVER ANIMATION ON HOVER AND OUT ON NON-HOVER****/
+        let actionManager = new BABYLON.ActionManager(scene);
+        hotspot.actionManager = actionManager;
+        actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOverTrigger, function(ev){
+            scene.beginAnimation(hotspot, 0, 15, false);
+        }));
+        //if hover is over remove highlight of the mesh
+        actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPointerOutTrigger, function(ev){
+            scene.beginAnimation(hotspot, 15, 0, false);
+        }));
+        
+        actionManager.registerAction(new BABYLON.ExecuteCodeAction(BABYLON.ActionManager.OnPickTrigger, (ev)=>{
+            this.$emit('showModal', 'hotspots clicked !');
+        }));
+
+        hotspotsArray.push(hotspot);
+      })
 
       /****ASSET IMPORTS****/
-      BABYLON.SceneLoader.ImportMesh("", this.fileLocation, this.fileName, scene, ()=> {
+      BABYLON.SceneLoader.ImportMesh("", this.json.location, this.json.fileName, scene, ()=> {
         console.log("onSuccess");
-        pinPlane1.setEnabled(true);
+        hotspotsArray.forEach((item) => {
+          item.setEnabled(true);
+        });
         this.hideLoadingUI();
       });
 

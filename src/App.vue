@@ -1,6 +1,6 @@
 <template>
   <div id="app" data-app>
-    <Hotspots3D :fileLocation="glTFLocation" :fileName="glTFName" @showModal="modalShow" :coordHotspot="coord"/>
+    <Hotspots3D :json="jsonContent" @showModal="modalShow"/>
     <v-row justify="center">
       <v-dialog v-model="dialogShow" persistent max-width="290">
         <v-card>
@@ -28,14 +28,50 @@ export default {
   data(){
     return {
       dialogShow: false,
-      glTFLocation:"https://dl.dropbox.com/s/ubv6bxc6esm7e7p/",
-      glTFName: "VirtualBooth-8-NoPlants.gltf",
-      coord: {
-        url: 'https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png',
-        x: 5.126, 
-        y: 2.819,
-        z: -0.7
+      jsonContent: {
+        "location": "https://dl.dropbox.com/s/ubv6bxc6esm7e7p/",
+        "fileName": "VirtualBooth-8-NoPlants.gltf",
+        "background": "09.jpg",
+        "hotspots": [
+            {
+              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "type": "video",
+              "x": 5.126, 
+              "y": 2.819,
+              "z": -0.7,
+              "width": 0.5,
+              "height": 0.5,                
+            },
+            {
+              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "type": "video",
+              "x": 4.126, 
+              "y": 2.819,
+              "z": -0.7,
+              "width": 0.5,
+              "height": 0.5,  
+            },
+            {
+              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "type": "video",
+              "x": 3.126, 
+              "y": 2.819,
+              "z": -0.7,
+              "width": 0.5,
+              "height": 0.5,  
+            }
+        ]
       },
+      // glTFLocation:"https://dl.dropbox.com/s/ubv6bxc6esm7e7p/",
+      // glTFName: "VirtualBooth-8-NoPlants.gltf",
+      // coord: {
+      //   url: 'https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png',
+      //   x: 5.126, 
+      //   y: 2.819,
+      //   z: -0.7,
+      //   width: 0.5,
+      //   height: 0.5,
+      // },
     }
   },
   methods:{
