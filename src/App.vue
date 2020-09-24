@@ -1,6 +1,8 @@
 <template>
   <div id="app" data-app>
     <Hotspots3D :json="jsonContent" @showModal="modalShow"/>
+    <!-- <GLGrid1/> -->
+    <!-- <GLGrid2/> -->
     <v-row justify="center">
       <v-dialog v-model="dialogShow" persistent max-width="290">
         <v-card>
@@ -19,22 +21,26 @@
 
 <script>
 import Hotspots3D from './components/Hotspots3D.vue'
+  // import GLGrid1 from '@/components/GlGrid1.vue'
+  // import GLGrid2 from '@/components/GLGrid2.vue'
 
 export default {
   name: 'App',
   components: {
     Hotspots3D,
+    // GLGrid1,
+    // GLGrid2,
   },
   data(){
     return {
       dialogShow: false,
       jsonContent: {
-        "location": "https://dl.dropbox.com/s/ubv6bxc6esm7e7p/",
+        "location": "./",
         "fileName": "VirtualBooth-8-NoPlants.gltf",
         "background": "09.jpg",
         "hotspots": [
             {
-              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "image": ".//MapPin.png",
               "type": "video",
               "x": 5.126, 
               "y": 2.819,
@@ -43,7 +49,7 @@ export default {
               "height": 0.5,                
             },
             {
-              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "image": "./MapPin.png",
               "type": "video",
               "x": 4.126, 
               "y": 2.819,
@@ -52,7 +58,7 @@ export default {
               "height": 0.5,  
             },
             {
-              "image": "https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png",
+              "image": "./MapPin.png",
               "type": "video",
               "x": 3.126, 
               "y": 2.819,
@@ -62,16 +68,7 @@ export default {
             }
         ]
       },
-      // glTFLocation:"https://dl.dropbox.com/s/ubv6bxc6esm7e7p/",
-      // glTFName: "VirtualBooth-8-NoPlants.gltf",
-      // coord: {
-      //   url: 'https://dl.dropbox.com/s/rbbzre5la44tfnc/MapPin.png',
-      //   x: 5.126, 
-      //   y: 2.819,
-      //   z: -0.7,
-      //   width: 0.5,
-      //   height: 0.5,
-      // },
+      
     }
   },
   methods:{
@@ -83,6 +80,8 @@ export default {
 </script>
 
 <style>
+  @import "../node_modules/ag-grid-community/dist/styles/ag-grid.css";
+  @import "../node_modules/ag-grid-community/dist/styles/ag-theme-alpine.css";
   html, body {
     overflow: hidden;
     width: 100%;

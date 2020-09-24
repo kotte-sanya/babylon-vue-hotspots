@@ -64,8 +64,8 @@ export default {
       let initialDistance = 5;
       let rotationalDistanceOffset = 5;
       let rotationalHeightOffset = 1;
-      let horizontalRotationalLimit = 180; 
-      let verticalRotationalLimit = 180;
+      let horizontalRotationalLimit = 360; 
+      let verticalRotationalLimit = 360;
 
 
       /****CAMERA SYSTEM SETUP****/
